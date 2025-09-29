@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <style>
+        #topBar{
+            background:
+            linear-gradient(180deg,#00000022 0%, #10302077 65%, #00000055 100%);
+            height: 54px;
+            display: flex; justify-content: center; align-items: center;
+            color: white;
+            font-family: "Arial", sans-serif;
+            font-size: large;
+        }
+        [data-bs-theme="dark"] .login-container {
+            background-color: #121212; /* Dark background */
+        }
+    
+        [data-bs-theme="dark"] .form-section {
+            background-color: #212529;
+            color: #dee2e6;
+        }
+    
+        [data-bs-theme="dark"] .form-control {
+            background-color: #343a40;
+            border-color: #495057;
+            color: #dee2e6;
+        }
+    
+        [data-bs-theme="dark"] .form-control:focus {
+            background-color: #343a40;
+            border-color: #86b7fe;
+            color: #dee2e6;
+        }
+    
+        [data-bs-theme="dark"] h2 {
+            color: #dee2e6;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .login-container {
+            min-height: calc(100vh - 54px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #004d40; /* Verde oscuro */
+            background-image: url("{% static 'img/patron-textil.webp' %}");
+            background-repeat: repeat;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 1000px; /* Aumentado para acomodar dos columnas */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden; /* Para que los bordes redondeados afecten a las columnas internas */
+        }
+        .image-section {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .carousel {
+            height: 500px; /* Fixed height for the carousel */
+            width: 100%;
+        }
+        .carousel-inner, .carousel-item {
+            height: 100%;
+        }
+        .carousel-item img {
+            height: 100%;
+            object-fit: cover;
+        }
+        .form-section {
+            padding: 40px;
+            background-color: white;
+        }
+        .form-section .logo {
+            display: block;
+            margin: 0 auto 30px;
+            max-width: 150px;
+        }
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .login-button {
+            background-color: #007bff;
+            border: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .login-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="topBar">
+        <img alt="" loading="lazy" width="68" height="19" decoding="async" data-nimg="1" src="{% static 'img/sag-007.svg' %}" style="color: transparent;">
+        <span> · Sistema Administrativo Gubernamental</span>
+    </div>
+    <div class="container-fluid login-container">
+        <div class="card login-card">
+            <div class="row g-0">
+                <div class="col-md-6 image-section">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{% static 'img/imagen1.jpg' %}" class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'img/imagen2.jpg' %}" class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'img/imagen3.jpg' %}" class="d-block w-100" alt="...">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 form-section">
+                    <img src="{% static 'img/Logo1.png' %}" alt="Logo" class="logo">
+                    <h2 class="text-center mb-4">Eventos del Estado de Chiapas</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Usuario</label>
+                            <input type="text" name="username" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" name="password" class="form-control" id="password" required>
+                        </div>
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                Tu usuario y contraseña no coinciden. Por favor, inténtalo de nuevo.
+                            </div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary w-100 login-button">Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

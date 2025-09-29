@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0 mt-4 mb-4">
+    <div class="card-header text-white text-center py-3" style="background-color: #006554;">
+        <h4 class="mb-0">
+            <i class="fas fa-map-marked-alt"></i> {{ titulo }}
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Clave del Municipio</th>
+                        <th scope="col">Nombre del Municipio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for municipio in municipios %}
+                    <tr>
+                        <td>{{ municipio.cve_mun }}</td>
+                        <td>{{ municipio.nom_mun }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center">No hay municipios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Nuevo diseño minimalista para las tarjetas de estadísticas */
+    .stat-card {
+        background-color: #fff;
+        border-radius: 12px; /* Bordes más redondeados */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Sombra más sutil */
+        border: none; /* Sin bordes */
+        overflow: hidden; /* Para que el indicador de color no se salga */
+        position: relative;
+    }
+
+    /* Reemplazamos el borde izquierdo por una barra de color superior */
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        height: 5px; /* Grosor de la barra */
+        width: 100%;
+    }
+
+    .stat-card.border-top-primary::before { background-color: #4e73df; }
+    .stat-card.border-top-info::before { background-color: #36b9cc; }
+    .stat-card.border-top-success::before { background-color: #1cc88a; }
+    .stat-card.border-top-warning::before { background-color: #f6c23e; }
+
+    .chart-container {
+        position: relative;
+        height: 320px;
+        width: 100%;
+    }
+
+    /* Nuevo estilo para las tarjetas de eventos de hoy */
+    .event-card {
+        background-color: #f4f4f4;
+        border-radius: 12px; /* Ajustado para que todos los bordes sean redondeados */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Asegura que el contenido respete el border-radius */
+    }
+
+    .event-card:hover {
+        transform: translateY(-8px) scale(1.03); /* Animación más pronunciada */
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+
+    .event-card .card-header {
+        background-color: #006554;
+        color: white;
+    }
+    /* Estilo para los filtros de período */
+    .nav-pills .nav-link {
+        color: #5a5c69;
+        border-radius: 50rem; /* Píldoras */
+        padding: 0.5rem 1rem;
+        margin: 0 0.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #006554; /* Color principal */
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 101, 84, 0.3);
+    }
+
+    .nav-pills .nav-link:not(.active):hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Estilos para filtros pequeños */
+    .nav-pills .nav-link.nav-link-sm {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single.form-select-sm {
+        height: calc(1.5em + .5rem + 2px) !important;
+        padding: .25rem .5rem !important;
+        font-size: .875rem !important;
+        line-height: 1.5 !important;
+    }
+    .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+    .select2-container--bootstrap-5.select2-container--open .select2-selection {
+        box-shadow: none !important;
+    }
+
+    /* Estilos para la barra de filtros ovalada */
+    .filter-bar-oval {
+        background-color: transparent; /* Removed green background */
+        border-radius: 0; /* Removed oval shape */
+        padding: 0.5rem 0; /* Adjusted padding */
+    }
+    .filter-bar-oval .h5 {
+        color: #333; /* Darker color for text */
+    }
+    .filter-bar-oval .nav-pills .nav-link {
+        color: #5a5c69; /* Darker color for nav links */
+    }
+    .filter-bar-oval .nav-pills .nav-link:not(.active):hover {
+        background-color: #f0f0f0; /* Adjusted hover background */
+    }
+    .filter-bar-oval .nav-pills .nav-link.active {
+        background-color: #006554; /* Reverted to a green for active state, but not a "circle" */
+        color: white;
+        border: none; /* Removed border */
+    }
+    .filter-bar-oval .select2-container--bootstrap-5 .select2-selection {
+        background-color: #fff; /* White background for select2 */
+        border: 1px solid #ced4da; /* Added border for select2 */
+    }
+    .filter-bar-oval .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Dashboard - Sistema de Eventos{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-sm-3 text-center text-sm-start">
+        <img src="{% static 'img/Logo1.png' %}" alt="Logo" style="height: 60px;">
+    </div>
+    <div class="col-sm-6 text-center">
+        <h1 class="h3 mb-0 text-gray-800">Eventos del Estado de Chiapas</h1>
+    </div>
+    <div class="col-sm-3 text-center text-sm-end">
+        <a href="" class="btn shadow-sm rounded-pill" style="background-color: #009784; border-color: #009784; color: white;">
+            <i class="fas fa-sync-alt fa-sm"></i>
+        </a>
+        <a href="{% url 'crear_evento' %}" class="btn shadow-sm rounded-pill ms-2" style="background-color: #009785; border-color: #009785; color: white;">
+            <i class="fas fa-plus fa-sm me-1"></i> Nuevo Evento
+        </a>
+    </div>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row">
+    <!-- Eventos Totales -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-top-primary h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Eventos Totales</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_eventos }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eventos Programados -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-top-info h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-info text-uppercase mb-1">Eventos Programados</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ eventos_programados }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eventos Finalizados -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-top-success h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-success text-uppercase mb-1">Eventos Finalizados</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ eventos_finalizados }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eventos de Hoy -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-top-warning h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col me-2">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Eventos de Hoy</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ eventos_hoy_count }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barra de Filtros Ovalada -->
+<div class="filter-bar-oval mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        
+        <h4 class="h5 mb-0">Filtrar por:</h4>
+
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            
+            <form method="get" action="" id="filter-form" class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
+                <input type="hidden" name="periodo" value="{{ periodo }}">
+                <div class="flex-grow-1">
+                    {{ form_filtro.municipio }}
+                </div>
+                {% if user.is_admin_user %}
+                <div class="flex-grow-1">
+                    {{ form_filtro.dependencia }}
+                </div>
+                {% endif %}
+            </form>
+
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link nav-link-sm periodo-link {% if periodo == 'dia' %}active{% endif %}" href="?periodo=dia">Día</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-sm periodo-link {% if periodo == 'semana' %}active{% endif %}" href="?periodo=semana">Semana</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-sm periodo-link {% if periodo == 'mes' %}active{% endif %}" href="?periodo=mes">Mes</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+    <!-- Contenedor para las tarjetas de eventos verticales -->
+    <div class="row">
+        {% for evento in eventos_filtrados %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a href="{% url 'detalle_evento' evento.id %}" class="card event-card text-decoration-none text-dark">
+                <div class="card-header">
+                    <h6 class="mb-0 fw-bold">{{ evento.nombre_evento }}</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock fa-fw me-3 text-primary"></i>
+                            <span class="small text-dark">
+                                {{ evento.fecha_hora_inicio|date:"d/m/Y H:i" }}
+                                {% if evento.fecha_hora_fin %}
+                                    - {{ evento.fecha_hora_fin|date:"d/m/Y H:i" }}
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="d-flex align-items-center mb-2">
+                            <i class="fas fa-map-marker-alt fa-fw me-3 text-success"></i>
+                            <span class="small text-dark">
+                                {% if evento.lugar_evento %}
+                                    {{ evento.lugar_evento }},
+                                {% endif %}
+                                {{ evento.municipio.nom_mun }}
+                            </span>
+                        </li>
+                        <li class="d-flex align-items-center mb-2">
+                            <i class="fas fa-building fa-fw me-3 text-warning"></i>
+                            <span class="small text-dark">{{ evento.dependencia }}</span>
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <i class="fas fa-info-circle fa-fw me-3 text-info"></i>
+                            <span class="badge rounded-pill estado-{{ evento.estado }}">{{ evento.get_estado_display }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+        {% if not eventos_filtrados %}
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center text-muted">
+                    <p class="mb-0">No hay eventos programados para este periodo.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+    // Inicializar Select2
+    $('#id_municipio').select2({
+        theme: "bootstrap-5",
+        placeholder: "Filtrar por municipio...",
+        allowClear: true,
+        containerCssClass: "select2-sm"
+    });
+    $('#id_dependencia').select2({
+        theme: "bootstrap-5",
+        placeholder: "Filtrar por dependencia...",
+        allowClear: true,
+        containerCssClass: "select2-sm"
+    });
+
+    // Auto-submit en cambio de dropdown
+    $('#id_municipio, #id_dependencia').on('change', function() {
+        $('#filter-form').submit();
+    });
+
+    // Lógica para que los filtros de período conserven los otros filtros
+    $('.periodo-link').on('click', function(e) {
+        e.preventDefault();
+        
+        var url = $(this).attr('href');
+        var municipio = $('#id_municipio').val();
+        var dependencia = $('#id_dependencia').val();
+
+        var params = new URLSearchParams(url.split('?')[1]);
+        
+        if (municipio) {
+            params.set('municipio', municipio);
+        }
+        if (dependencia) {
+            params.set('dependencia', dependencia);
+        }
+
+        window.location.href = '?' + params.toString();
+    });
+});
+</script>
+{% endblock %}

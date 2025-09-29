@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    .form-card-rounded, .info-card-oval {
+        font-family: 'Poppins', sans-serif;
+    }
+    .info-card-oval {
+        border-radius: 1.5rem; /* Bordes redondeados */
+        border: none;
+        background-color: #f8f9fa; /* Un fondo ligeramente gris */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .info-card-oval .card-title {
+        color: #006554; /* Color del tema */
+        font-weight: bold;
+    }
+    .info-card-oval .text-muted {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .info-card-oval .fw-bold {
+        font-size: 1.05rem;
+    }
+    .form-card-rounded {
+        border-radius: 1.5rem;
+        overflow: hidden; /* Asegura que el contenido respete los bordes */
+    }
+
+    .btn-custom-save {
+        background-color: #006554;
+        border-color: #006554;
+        color: white;
+    }
+    .btn-custom-save:hover {
+        background-color: #004a3d;
+        border-color: #004a3d;
+        color: white;
+    }
+
+    .btn-custom-cancel {
+        background-color: #646362;
+        border-color: #646362;
+        color: white;
+    }
+    .btn-custom-cancel:hover {
+        background-color: #504f4e;
+        border-color: #504f4e;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0 mt-4 mb-4 form-card-rounded">
+            <div class="card-header text-white text-center py-3" style="background-color: #006554;">
+                <h4 class="mb-0">
+                    <i class="fa-regular fa-note-sticky"></i> {{ titulo }}
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        {# === CAMPOS DE CAPTURA === #}
+                        <div class="col-12">
+                            {% bootstrap_field form.nombre_evento layout='floating' %}
+                        </div>
+
+                        <div class="col-12">
+                            {% bootstrap_field form.observaciones layout='floating' %}
+                        </div>
+
+                        <div class="col-md-6">
+                            {% bootstrap_field form.lugar_evento layout='floating' %}
+                        </div>
+                        <div class="col-md-6">
+                           {% bootstrap_field form.municipio layout='floating' %}
+                        </div>
+
+                        <div class="col-md-6">
+                            {% bootstrap_field form.fecha_hora_inicio layout='floating' %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form.fecha_hora_fin layout='floating' %}
+                        </div>
+                        
+                        <div class="col-12">
+                            {% bootstrap_field form.archivo_pdf layout='floating' %}
+                            {% if evento.archivo_pdf %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Archivo actual: 
+                                        <a href="{{ evento.archivo_pdf.url }}" target="_blank">{{ evento.archivo_pdf.name|truncatechars:30 }}</a>
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {# === SECCIÓN EXCLUSIVA PARA ADMINISTRADORES === #}
+                        {% if user.is_admin_user %}
+                        <div class="col-12 mt-4">
+                            <fieldset class="border p-3 rounded">
+                                <legend class="w-auto px-2" style="font-size: 1rem; font-weight: bold; color: #006554;">
+                                    <i class="fas fa-user-shield me-2"></i>Uso exclusivo del Administrador
+                                </legend>
+                                
+                                <div class="row g-3">
+                                    {% if form.estado %}
+                                    <div class="col-md-6">
+                                        {% bootstrap_field form.estado layout='floating' %}
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ form.asistira_gobernador.label }}</label>
+                                        <div class="d-flex mt-2">
+                                            {% for radio in form.asistira_gobernador %}
+                                            <div class="me-3">
+                                                {{ radio.tag }}
+                                                <label for="{{ radio.id_for_label }}" class="btn {% if radio.choice_label == 'Sí' %}btn-outline-success{% else %}btn-outline-danger{% endif %} rounded-pill px-4">
+                                                    {% if radio.choice_label == 'Sí' %}
+                                                        <i class="fas fa-check me-2"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-times me-2"></i>
+                                                    {% endif %}
+                                                    {{ radio.choice_label }}
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if form.asistira_gobernador.help_text %}
+                                            <small class="form-text text-muted">{{ form.asistira_gobernador.help_text }}</small>
+                                        {% endif %}
+                                        {% for error in form.asistira_gobernador.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        {% bootstrap_field form.archivo_respuesta_admin layout='floating' %}
+                                        {% if evento.archivo_respuesta_admin %}
+                                            <div class="mt-2">
+                                                <small class="text-muted">Archivo de respuesta actual: 
+                                                    <a href="{{ evento.archivo_respuesta_admin.url }}" target="_blank">{{ evento.archivo_respuesta_admin.name|truncatechars:30 }}</a>
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-12">
+                                        {% bootstrap_field form.anotaciones layout='floating' %}
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {# Botones de acción #}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                        <a href="{% if evento %}{% url 'detalle_evento' evento.id %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn btn-custom-cancel btn-lg px-4 rounded-pill">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-custom-save btn-lg px-4 rounded-pill">
+                            <i class="fas fa-save me-2"></i>
+                            {% if editando %}Actualizar{% else %}Guardar{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {# La columna lateral se mantiene igual #}
+    <div class="col-lg-4">
+        <div class="card mt-4 info-card-oval">
+            <div class="card-body text-center p-4">
+                <h6 class="card-title mb-4"><i class="fas fa-user-check me-2"></i>Información de Usuario</h6>
+                <div class="text-start">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Dependencia</small>
+                        <span class="fw-bold">{{ user.dependencia.nom_dep }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Titular</small>
+                        <span class="fw-bold">{% if user.dependencia and user.dependencia.titular_fk %}{{ user.dependencia.titular_fk.nom_titular }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Capturado por</small>
+                        <span class="fw-bold">{{ user.nombre_completo }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3 info-card-oval">
+            <div class="card-body text-center p-4">
+                <h6 class="card-title mb-4"><i class="fas fa-question-circle me-2"></i>Ayuda Rápida</h6>
+                <ul class="list-unstyled text-start">
+                    <li class="d-flex mb-2">
+                        <i class="fas fa-circle-notch text-primary me-3 mt-1" style="font-size: 0.7rem;"></i>
+                        <span class="small">El evento se creará en estado <strong>Programado</strong>.</span>
+                    </li>
+                    <li class="d-flex mb-2">
+                        <i class="fas fa-circle-notch text-success me-3 mt-1" style="font-size: 0.7rem;"></i>
+                        <span class="small">Cambiará a <strong>Activo</strong> al llegar la fecha de inicio.</span>
+                    </li>
+                    <li class="d-flex">
+                        <i class="fas fa-circle-notch text-danger me-3 mt-1" style="font-size: 0.7rem;"></i>
+                        <span class="small">Se <strong>Finalizará</strong> 6 horas después de su término.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación en tiempo real para que la fecha de fin sea posterior a la de inicio
+    const fechaInicioInput = document.querySelector('#id_fecha_hora_inicio');
+    const fechaFinInput = document.querySelector('#id_fecha_hora_fin');
+    
+    function validarFechas() {
+        if (fechaInicioInput.value && fechaFinInput.value) {
+            const inicio = new Date(fechaInicioInput.value);
+            const fin = new Date(fechaFinInput.value);
+            
+            if (fin <= inicio) {
+                fechaFinInput.setCustomValidity('La fecha de fin debe ser posterior a la fecha de inicio.');
+            } else {
+                fechaFinInput.setCustomValidity('');
+            }
+        }
+    }
+    
+    if(fechaInicioInput && fechaFinInput) {
+        fechaInicioInput.addEventListener('change', validarFechas);
+        fechaFinInput.addEventListener('change', validarFechas);
+    }
+});
+
+$(document).ready(function() {
+    $('#id_municipio').select2({
+        theme: "bootstrap-5",
+        placeholder: "Seleccione un municipio",
+        allowClear: true
+    });
+});
+</script>
+{% endblock %}

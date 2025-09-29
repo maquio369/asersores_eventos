@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificación de Evento</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .content {
+            padding: 30px;
+        }
+        .content h2 {
+            color: #006554;
+        }
+        .content p {
+            margin-bottom: 15px;
+        }
+        .event-details {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .event-details th {
+            text-align: left;
+            padding-right: 15px;
+            color: #555;
+            font-weight: normal;
+        }
+        .event-details td {
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="background-color: #006554; text-align: center; color: #ffffff; padding: 20px;">
+            <h1 style="margin: 0; font-size: 24px;">{{ subject }}</h1>
+        </div>
+        <div class="content">
+            <p>Hola,</p>
+            {% if tipo_accion == 'actualizado' %}
+                <p>Se ha actualizado la siguiente información del evento en el sistema:</p>
+            {% else %}
+                <p>Se ha registrado la siguiente información de evento en el sistema:</p>
+            {% endif %}
+            
+            <div class="event-details">
+                <table>
+                    <tr>
+                        <th>Evento:</th>
+                        <td>{{ evento.nombre_evento }}</td>
+                    </tr>
+                    {% if evento.observaciones %}
+                    <tr>
+                        <th>Descripción:</th>
+                        <td>{{ evento.observaciones }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Municipio:</th>
+                        <td>{{ evento.municipio.nom_mun }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lugar:</th>
+                        <td>{{ evento.lugar_evento }}</td>
+                    </tr>
+                    <tr>
+                        <th>Inicio:</th>
+                        <td>{{ evento.fecha_hora_inicio|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% if evento.fecha_hora_fin %}
+                    <tr>
+                        <th>Término:</th>
+                        <td>{{ evento.fecha_hora_fin|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Capturado por:</th>
+                        <td>{{ evento.usuario_creador.nombre_completo }}</td>
+                    </tr>
+                     <tr>
+                        <th>Dependencia:</th>
+                        <td>{{ evento.dependencia }}</td>
+                    </tr>
+                    <tr>
+                        <th>Estatus:</th>
+                        <td>{{ evento.get_estado_display }}</td> {# Corregido de Estatus a Estado para coincidir con la implementación anterior #}
+                    </tr>
+                </table>
+            </div>
+
+            <p style="margin-top: 20px;">Puedes ver los detalles completos del evento en el sistema.</p>
+        </div>
+        <div class="footer">
+            <p>Este es un correo electrónico generado automáticamente. Por favor, no respondas a este mensaje.</p>
+        </div>
+    </div>
+</body>
+</html>

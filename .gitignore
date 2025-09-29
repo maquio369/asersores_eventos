@@ -1,0 +1,73 @@
+# Archivos de entorno de Python
+venv/
+env/
+.venv/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de base de datos locales
+db.sqlite3
+db.sqlite3-journal
+
+# Archivos de medios subidos por los usuarios
+# (configurado en settings.py, usualmente 'media/')
+media/
+
+# Archivos estáticos recolectados por collectstatic
+# (configurado en settings.PY como STATIC_ROOT)
+staticfiles/
+static_root/
+
+# Archivos de secretos y configuración local
+# python-decouple usa .env por defecto
+.env
+*.env
+*.env.local
+local_settings.py
+
+# Logs
+*.log
+logs/
+
+# Archivos de configuración de IDEs
+.idea/
+.vscode/
+
+# Reportes de tests y cobertura
+htmlcov/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Distribución / empaquetado
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Logs de instalación
+pip-log.txt
+pip-delete-this-directory.txt

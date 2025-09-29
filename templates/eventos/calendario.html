@@ -1,0 +1,602 @@
+{% extends 'base.html' %}
+{% load dict_extras %}
+{% load tz %}
+
+{% block title %}Calendario de Eventos{% endblock %}
+
+{% block extra_css %}
+<style>
+  main {
+    max-width: 1200px !important;
+    margin: 10px auto !important;
+    padding: 0 15px !important;
+  }
+  
+  h1 {
+    font-size: 1.8em !important;
+    margin-bottom: 15px !important;
+  }
+  
+  .calendar-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .calendar-header {
+    background: #009885;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  
+  .nav-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.3);
+  }
+  
+  .calendar-title {
+    font-size: 1.3em;
+    font-weight: 600;
+  }
+  
+  .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    flex: 1;
+    height: 100%;
+  }
+  
+  .calendar-table th {
+    background: #f8f9fa;
+    padding: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    font-size: 14px;
+  }
+  
+  .calendar-table td {
+    height: calc((100vh - 280px) / 6);
+    width: 14.28%;
+    vertical-align: top;
+    padding: 6px;
+    border: 1px solid #dee2e6;
+    position: relative;
+  }
+  
+  .day-number {
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+    margin-bottom: 3px;
+  }
+  
+  .day-today .day-number {
+    background: #009885;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  
+  .day-empty {
+    background: #f8f9fa;
+    color: #adb5bd;
+  }
+  
+  .event-indicators {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    z-index: 2;
+    flex-wrap: wrap;
+    max-width: calc(100% - 10px);
+  }
+  
+
+  
+  .event-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #009885 0%, #00b894 100%);
+    box-shadow: 0 2px 4px rgba(0,152,133,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.4);
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .event-dot:hover {
+    transform: scale(1.2);
+    box-shadow: 0 3px 6px rgba(0,152,133,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  
+  .event-dot.activo {
+    background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+    box-shadow: 0 2px 4px rgba(255,107,53,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+    animation: pulse 2s infinite;
+  }
+  
+  .event-dot.programado {
+    background: linear-gradient(135deg, #009885 0%, #00b894 100%);
+    box-shadow: 0 2px 4px rgba(0,152,133,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  
+  .event-dot.finalizado {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    box-shadow: 0 2px 4px rgba(108,117,125,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    opacity: 0.8;
+  }
+  
+  .event-dot.cancelado {
+    background: linear-gradient(135deg, #dc3545 0%, #e55353 100%);
+    box-shadow: 0 2px 4px rgba(220,53,69,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 2px 4px rgba(255,107,53,0.3), inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 0 rgba(255,107,53,0.4);
+    }
+    50% {
+      box-shadow: 0 2px 4px rgba(255,107,53,0.3), inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 4px rgba(255,107,53,0.1);
+    }
+  }
+  
+  .event-overflow {
+    background: linear-gradient(135deg, #C90166 0%, #e91e63 100%);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 5px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(201,1,102,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+  }
+  
+  .event-overflow:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(201,1,102,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  
+
+  
+  .day-with-events {
+    background: rgba(0, 152, 133, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .day-with-events:hover {
+    background: rgba(0, 152, 133, 0.1);
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-overlay.open {
+    display: flex;
+  }
+  
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.3s ease;
+  }
+  
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .modal-header {
+    background: #009885;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modal-title {
+    font-size: 1.2em;
+    font-weight: 600;
+  }
+  
+  .modal-body {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .event-item {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+
+  .event-item:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 5px;
+      background: #009885;
+  }
+  
+  .event-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .close-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  
+  .close-modal:hover {
+    background: rgba(255,255,255,0.2);
+  }
+/* --- Dark Mode Styles --- */
+
+/* Calendar Dark Mode */
+body.dark .calendar-container,
+body.dark-mode .calendar-container,
+html.dark .calendar-container {
+    background: #2d3748;
+    color: #f7fafc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+body.dark .calendar-header,
+body.dark-mode .calendar-header,
+html.dark .calendar-header {
+    background: #1a202c;
+}
+
+body.dark .calendar-table th,
+body.dark-mode .calendar-table th,
+html.dark .calendar-table th {
+    background: #2d3748;
+    color: #a0aec0;
+    border-bottom: 2px solid #4a5568;
+}
+
+body.dark .calendar-table td,
+body.dark-mode .calendar-table td,
+html.dark .calendar-table td {
+    border-color: #4a5568;
+}
+
+body.dark .day-number,
+body.dark-mode .day-number,
+html.dark .day-number {
+    color: #e2e8f0;
+}
+
+body.dark .day-today .day-number,
+body.dark-mode .day-today .day-number,
+html.dark .day-today .day-number {
+    background: #009885;
+    color: #fff;
+}
+
+body.dark .day-empty,
+body.dark-mode .day-empty,
+html.dark .day-empty {
+    background: #1a202c;
+}
+
+body.dark .day-with-events,
+body.dark-mode .day-with-events,
+html.dark .day-with-events {
+    background: rgba(0, 152, 133, 0.1);
+}
+
+body.dark .day-with-events:hover,
+body.dark-mode .day-with-events:hover,
+html.dark .day-with-events:hover {
+    background: rgba(0, 152, 133, 0.2);
+}
+
+/* Modal Dark Mode */
+body.dark .modal-content,
+body.dark-mode .modal-content,
+html.dark .modal-content {
+    background: #2d3748;
+    color: #f7fafc;
+}
+
+body.dark .modal-header,
+body.dark-mode .modal-header,
+html.dark .modal-header {
+    background: #1a202c;
+}
+
+/* Event Item Dark Mode */
+body.dark .event-item,
+body.dark-mode .event-item,
+html.dark .event-item {
+    background-color: #4a5568;
+    border-color: #718096;
+}
+
+body.dark .event-item:hover,
+body.dark-mode .event-item:hover,
+html.dark .event-item:hover {
+    background-color: #4a5568; /* Keep background color */
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
+}
+
+body.dark .event-item h5,
+body.dark-mode .event-item h5,
+html.dark .event-item h5,
+body.dark .event-item .mb-0,
+body.dark-mode .event-item .mb-0,
+html.dark .event-item .mb-0,
+body.dark .event-item strong,
+body.dark-mode .event-item strong,
+html.dark .event-item strong {
+    color: #f7fafc !important;
+}
+
+body.dark .event-item div[style*="color: #555;"],
+body.dark-mode .event-item div[style*="color: #555;"],
+html.dark .event-item div[style*="color: #555;"] {
+    color: #a0aec0 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>📅 Calendario de Eventos</h1>
+
+<div class="calendar-container">
+  <div class="calendar-header">
+    <button class="nav-btn" onclick="location.href='?month={{ mes_anterior }}&year={{ año_anterior }}'">← Anterior</button>
+    <div class="calendar-title">{{ mes_nombre }} {{ año }}</div>
+    <div>
+      {% if not es_mes_actual %}
+      <button class="nav-btn" onclick="location.href='{% url 'calendar_view' %}'">Hoy</button>
+      {% endif %}
+      <button class="nav-btn" onclick="location.href='?month={{ mes_siguiente }}&year={{ año_siguiente }}'">→ Siguiente</button>
+    </div>
+  </div>
+  
+  <table class="calendar-table">
+    <thead>
+      <tr>
+        <th>Lun</th>
+        <th>Mar</th>
+        <th>Mié</th>
+        <th>Jue</th>
+        <th>Vie</th>
+        <th>Sáb</th>
+        <th>Dom</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for semana in calendario %}
+      <tr>
+        {% for dia in semana %}
+          {% if dia == 0 %}
+          <td class="day-empty"></td>
+          {% else %}
+          <td class="{% if dia == hoy %}day-today{% endif %} {% if eventos_por_dia|length > 0 and dia in eventos_por_dia %}day-with-events{% endif %}" 
+              onclick="{% if dia in eventos_por_dia %}showEvents({{ dia }}, '{{ dia }}/{{ mes_nombre }}'){% endif %}">
+            <div class="day-number">{{ dia }}</div>
+            
+            {% if dia in eventos_por_dia %}
+              <div class="event-indicators">
+                {% with eventos_del_dia=eventos_por_dia|dictkey:dia %}
+                  {% for evento in eventos_del_dia %}
+                    {% if forloop.counter <= 4 %}
+                      <div class="event-dot {{ evento.estado }}"></div>
+                    {% endif %}
+                  {% endfor %}
+                  {% if eventos_del_dia|length > 4 %}
+                    <div class="event-overflow">+{{ eventos_del_dia|length|add:"-4" }}</div>
+                  {% endif %}
+                {% endwith %}
+              </div>
+            {% endif %}
+          </td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal para mostrar eventos del día -->
+<div class="modal-overlay" id="eventsModal" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Eventos del día</div>
+      <button class="close-modal" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Los eventos se cargarán aquí -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Serializar Django context to JS
+    const eventosPorDia = JSON.parse('{{ eventos_por_dia_json|escapejs|safe }}');
+
+    const modalOverlay = document.getElementById('eventsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+
+    function showEvents(day, dateStr) {
+        const events = eventosPorDia[day.toString()];
+        if (!events || events.length === 0) return;
+
+        modalTitle.innerText = `Eventos del ${dateStr}`;
+        modalBody.innerHTML = ''; // Clear previous events
+
+        events.sort((a, b) => new Date(a.start) - new Date(b.start)).forEach(event => {
+            const eventEl = document.createElement('div');
+            eventEl.className = 'event-item';
+            eventEl.onclick = () => {
+                window.location.href = `/eventos/${event.id}/`;
+            };
+
+            const startTime = new Date(event.start).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const endTime = event.end ? new Date(event.end).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : null;
+            const timeString = endTime ? `${startTime} - ${endTime}` : startTime;
+
+            const statusBadgeClasses = {
+                'Programado': 'bg-success',
+                'Revisado': 'bg-info',
+                'Activo': 'bg-warning text-dark',
+                'Finalizado': 'bg-secondary',
+                'Cancelado': 'bg-danger',
+            };
+            const badgeClass = statusBadgeClasses[event.estado] || 'bg-dark';
+
+            const div1 = document.createElement('div');
+            div1.className = 'd-flex justify-content-between align-items-center mb-3';
+
+            const h5 = document.createElement('h5');
+            h5.className = 'mb-0';
+            h5.style.fontSize = '1.1rem';
+            h5.style.fontWeight = '600';
+            h5.textContent = event.title;
+
+            const spanBadge = document.createElement('span');
+            spanBadge.className = `badge rounded-pill ${badgeClass}`;
+            spanBadge.textContent = event.estado;
+
+            div1.appendChild(h5);
+            div1.appendChild(spanBadge);
+
+            const ul = document.createElement('ul');
+            ul.className = 'list-unstyled mb-0';
+            ul.style.fontSize = '0.9rem';
+
+            const li1 = document.createElement('li');
+            li1.className = 'd-flex align-items-center mb-2';
+            const i1 = document.createElement('i');
+            i1.className = 'fas fa-clock fa-fw me-2 text-primary';
+            const span1 = document.createElement('span');
+            span1.textContent = timeString;
+            li1.appendChild(i1);
+            li1.appendChild(span1);
+
+            const li2 = document.createElement('li');
+            li2.className = 'd-flex align-items-center mb-2';
+            const i2 = document.createElement('i');
+            i2.className = 'fas fa-map-marker-alt fa-fw me-2 text-success';
+            const span2 = document.createElement('span');
+            span2.textContent = event.municipio;
+            li2.appendChild(i2);
+            li2.appendChild(span2);
+
+            const li3 = document.createElement('li');
+            li3.className = 'd-flex align-items-center';
+            const i3 = document.createElement('i');
+            i3.className = 'fas fa-building fa-fw me-2 text-warning';
+            const span3 = document.createElement('span');
+            span3.textContent = event.dependencia;
+            li3.appendChild(i3);
+            li3.appendChild(span3);
+
+            ul.appendChild(li1);
+            ul.appendChild(li2);
+            ul.appendChild(li3);
+
+            eventEl.appendChild(div1);
+            eventEl.appendChild(ul);
+            modalBody.appendChild(eventEl);
+        });
+
+        modalOverlay.classList.add('open');
+    }
+
+    function closeModal(event) {
+        // Only close if the overlay itself is clicked, not the content
+        if (event && event.target !== modalOverlay) {
+            return;
+        }
+        modalOverlay.classList.remove('open');
+    }
+</script>
+{% endblock %}

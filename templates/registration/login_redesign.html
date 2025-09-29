@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Wi-Fi Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5; /* Light background for the whole page */
+            overflow: hidden;
+        }
+        .login-container {
+            display: flex;
+            width: 90vw; /* Adjust as needed */
+            height: 80vh; /* Adjust as needed */
+            max-width: 1200px;
+            max-height: 700px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .left-panel {
+            flex: 1;
+            background-color: #004d40; /* Dark teal/forest green */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1;
+        }
+        .right-panel {
+            flex: 1;
+            background-color: #004d40; /* Dark teal/forest green */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            z-index: 0;
+        }
+        .organic-white-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 70%; /* Adjust size as needed */
+            height: 100%;
+            background-color: white;
+            border-radius: 0 70% 70% 0 / 0 50% 50% 0; /* Organic, rounded shape */
+            z-index: 2;
+            transform: translateX(-30%); /* Overlap the right panel */
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 40px;
+        }
+        .organic-white-shape .logo-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        .organic-white-shape .illustration {
+            width: 80%;
+            max-width: 300px;
+            height: auto;
+            margin: auto; /* Center the illustration */
+        }
+        .organic-white-shape .copyright-text {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .login-form-content {
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
+        }
+        .login-form-content h2 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: white;
+            box-shadow: none;
+            color: white;
+        }
+        .forgot-password {
+            display: block;
+            text-align: right;
+            margin-bottom: 30px;
+            color: #80deea; /* Light cyan/teal */
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .login-button {
+            background-color: #80deea; /* Light cyan/teal */
+            color: #004d40; /* Dark teal */
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        .login-button:hover {
+            background-color: #4dd0e1; /* Slightly darker cyan */
+        }
+        .register-text {
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+        .register-text a {
+            color: #80deea; /* Light cyan/teal */
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .footer-links {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: right;
+        }
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .footer-links a:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="left-panel">
+            <div class="organic-white-shape">
+                <div class="logo-text">Universitas Kristen Maranatha</div>
+                <img src="https://via.placeholder.com/300x200/FFFFFF/000000?text=Holiday+Illustration" alt="Holiday Illustration" class="illustration">
+                <div class="copyright-text">
+                    © 2019 Universitas Kristen Maranatha<br>
+                    Powered by NCC
+                </div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="login-form-content">
+                <h2>Login</h2>
+                <input type="text" class="form-control" placeholder="Username">
+                <input type="password" class="form-control" placeholder="Password">
+                <a href="#" class="forgot-password">Forgot Password?</a>
+                <button class="login-button">Login to Wifi</button>
+                <p class="register-text">Don't have an account? <a href="#">Register Now</a></p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Terms and Services</a>
+                <a href="#">Have a problem? Contact us at email@example.com</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

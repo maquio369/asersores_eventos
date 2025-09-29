@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Eventos Gubernamentales{% endblock %}</title>
+    <script>
+        // Set theme on page load to avoid FOUC
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        })();
+    </script>
+    
+    {% load bootstrap5 %}
+    {% load static %}
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    
+    {% bootstrap_javascript %}
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+        <style>
+        body {
+            padding-top: 70px; /* Espacio para el navbar fijo */
+        }
+    </style>
+    <style>
+        #fondo {
+            background:
+            linear-gradient(to right, rgb(0 0 150 / 0.05), rgb(250 250 250 / 0),  rgb(0 0 150 / 0.05)),
+            url("{% static 'img/patron_corazon_dark_light.png' %}") repeat;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <style>
+    /* Theme Toggle Button Styles */
+    #theme-toggle-button svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    #theme-icon-sun {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    #theme-icon-moon {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(90deg);
+    }
+
+    [data-bs-theme="dark"] #theme-icon-sun {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-90deg);
+    }
+
+    [data-bs-theme="dark"] #theme-icon-moon {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body id="fondo">
+    {% if user.is_authenticated %}
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow" style="background-color: #4f4a4c;">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
+                <i class="fas fa-calendar-check me-2"></i>Gestión de Eventos
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% include '_sidebar_content.html' %}
+                
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="container-fluid">
+        <!-- Mensajes -->
+            {% include '_messages.html' %}
+
+        <!-- Contenido específico -->
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Scripts adicionales -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {% block extra_js %}
+    {% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const themeToggleButton = document.getElementById('theme-toggle-button');
+            const htmlEl = document.documentElement;
+    
+            function setTheme(theme) {
+                htmlEl.setAttribute('data-bs-theme', theme);
+                localStorage.setItem('theme', theme);
+            }
+    
+            // Set initial theme on load
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            setTheme(currentTheme);
+    
+            themeToggleButton.addEventListener('click', function() {
+                const newTheme = htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+        });
+        </script>
+    
+</body>
+</html>

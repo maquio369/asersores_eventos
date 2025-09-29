@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    .detail-card, .info-card-oval {
+        font-family: 'Poppins', sans-serif;
+    }
+    .info-card-oval {
+        border-radius: 1.5rem;
+        border: none;
+        background-color: #f8f9fa;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .info-card-oval .card-title {
+        color: #006554;
+        font-weight: bold;
+    }
+    .info-card-oval .text-muted {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .info-card-oval .fw-bold {
+        font-size: 1.05rem;
+    }
+    .detail-card {
+        border-radius: 1.5rem;
+        overflow: hidden;
+    }
+    .detail-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    .detail-value {
+        font-weight: 500;
+        font-size: 1.1rem;
+        color: #343a40;
+    }
+    .detail-item {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        height: 100%;
+    }
+    .asistencia-confirmada {
+        background-color: #e6f7ec;
+        border: 2px solid #28a745;
+    }
+    .asistencia-confirmada .detail-label {
+        color: #28a745;
+    }
+    .asistencia-confirmada .detail-value {
+        color: #155724;
+        font-weight: 600;
+    }
+    .asistencia-no-confirmada {
+        background-color: #fdeeee;
+        border: 2px solid #dc3545;
+    }
+    .asistencia-no-confirmada .detail-label {
+        color: #dc3545;
+    }
+    .asistencia-no-confirmada .detail-value {
+        color: #721c24;
+        font-weight: 600;
+    }
+    .btn-custom-edit {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+    }
+    .btn-custom-edit:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+        color: #212529;
+    }
+    .btn-custom-delete {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+    .btn-custom-delete:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+        color: white;
+    }
+    .btn-custom-back {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+    .btn-custom-back:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Detalle del Evento{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-lg border-0 mt-4 mb-4 detail-card">
+            <div class="card-header text-white text-center py-3" style="background-color: #006554;">
+                <h4 class="mb-0">
+                    <i class="fas fa-calendar-check me-2"></i> Detalle del Evento
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                
+                <div class="p-3 mb-4 rounded" style="background-color: #eef3f2;">
+                    <small class="detail-label">Nombre del Evento</small>
+                    <h5 class="mb-0 detail-value" style="font-weight: 600;">{{ evento.nombre_evento }}</h5>
+                </div>
+
+                {% if evento.observaciones %}
+                <div class="p-3 mb-4 rounded" style="background-color: #eef3f2;">
+                    <small class="detail-label">Descripción</small>
+                    <p class="detail-value mb-0">{{ evento.observaciones }}</p>
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    {% if evento.municipio %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Municipio</small>
+                            <p class="detail-value mb-0 text-truncate">{{ evento.municipio.nom_mun }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if evento.lugar_evento %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Lugar del Evento</small>
+                            <p class="detail-value mb-0 text-truncate">{{ evento.lugar_evento }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if evento.numero_documento %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Nº de Documento</small>
+                            <p class="detail-value mb-0">{{ evento.numero_documento }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Fecha y Hora de Inicio</small>
+                            <p class="detail-value mb-0">{{ evento.fecha_hora_inicio|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                    {% if evento.fecha_hora_fin %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Fecha y Hora de Fin</small>
+                            <p class="detail-value mb-0">{{ evento.fecha_hora_fin|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if evento.asistira_gobernador is not None %}
+                    <div class="col-md-6">
+                        <div class="detail-item {% if evento.asistira_gobernador is True %}asistencia-confirmada{% elif evento.asistira_gobernador is False %}asistencia-no-confirmada{% endif %}">
+                            <small class="detail-label">Asistencia del Gobernador</small>
+                            <p class="detail-value mb-0">
+                                {% if evento.asistira_gobernador is True %}
+                                    <i class="fas fa-check-circle me-2"></i>Confirmada
+                                {% elif evento.asistira_gobernador is False %}
+                                    <i class="fas fa-times-circle me-2"></i>No Confirmada
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if evento.archivo_pdf %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Documento del Evento (PDF)</small>
+                            <p class="detail-value mb-0">
+                                <a href="{{ evento.archivo_pdf.url }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2">
+                                    <i class="fas fa-download me-1"></i> Ver Documento
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if evento.archivo_respuesta_admin %}
+                    <div class="col-md-6">
+                        <div class="detail-item">
+                            <small class="detail-label">Archivo de Respuesta (PDF)</small>
+                            <p class="detail-value mb-0">
+                                <a href="{{ evento.archivo_respuesta_admin.url }}" target="_blank" class="btn btn-sm btn-outline-success py-1 px-2">
+                                    <i class="fas fa-download me-1"></i> Ver Respuesta
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                    <a href="javascript:history.back()" class="btn btn-custom-back btn-lg px-4 rounded-pill">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    {% if puede_editar %}
+                    <a href="{% url 'editar_evento' evento.id %}" class="btn btn-custom-edit btn-lg px-4 rounded-pill">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card mt-4 info-card-oval">
+            <div class="card-body p-4">
+                <h6 class="card-title text-center mb-3"><i class="fas fa-clipboard-check me-2"></i>Estado del Evento</h6>
+                <div class="text-center">
+                    <span class="badge rounded-pill estado-{{ evento.estado }} p-2 px-3">{{ evento.get_estado_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3 info-card-oval">
+            <div class="card-body text-center p-4">
+                <h6 class="card-title mb-4"><i class="fas fa-user-check me-2"></i>Información de Usuario</h6>
+                <div class="text-start">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Dependencia</small>
+                        <span class="fw-bold">{% if evento.usuario_creador.dependencia %}{{ evento.usuario_creador.dependencia.nom_dep }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Titular</small>
+                        <span class="fw-bold">{% if evento.usuario_creador.dependencia and evento.usuario_creador.dependencia.titular_fk %}{{ evento.usuario_creador.dependencia.titular_fk.nom_titular }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Capturado por</small>
+                        <span class="fw-bold">{{ evento.usuario_creador.nombre_completo }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if evento.logs_estado.all %}
+        <div class="card mt-3 info-card-oval">
+            <div class="card-body p-4">
+                <h6 class="card-title text-center mb-4"><i class="fas fa-history me-2"></i>Historial de Estado</h6>
+                <ul class="list-unstyled">
+                    {% for log in evento.logs_estado.all %}
+                    <li class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="badge bg-primary rounded-pill p-2">
+                                    <i class="fas fa-exchange-alt text-white"></i>
+                                </span>
+                            </div>
+                            <div>
+                                <span class="fw-bold">{{ log.get_estado_nuevo_display }}</span>
+                                <small class="d-block text-muted">
+                                    {{ log.fecha_cambio|date:"d/m/Y H:i" }} por {{ log.usuario_cambio.username|default:"Sistema" }}
+                                </small>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
