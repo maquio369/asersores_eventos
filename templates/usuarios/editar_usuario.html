@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block extra_css %}
+<style>
+    .btn-custom-save {
+        background-color: #006554;
+        border-color: #006554;
+        color: white;
+    }
+    .btn-custom-save:hover {
+        background-color: #004a3d;
+        border-color: #004a3d;
+        color: white;
+    }
+
+
+    .custom-switch .form-check-input {
+        width: 50px;
+        height: 25px;
+        border-radius: 25px;
+        background-color: #e9ecef;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23868e96'/%3e%3c/svg%3e");
+        transition: background-color 0.3s ease-in-out, background-position 0.3s ease-in-out;
+    }
+
+    .custom-switch .form-check-input:checked {
+        background-color: #006554;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    }
+
+    .custom-switch .form-check-label {
+        padding-left: 10px;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header text-white text-center py-3" style="background-color: #006554;">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit"></i> {{ titulo }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field form.username %}
+                            </div>
+                            <div class="col-md-6">
+                                {% bootstrap_field form.nombre_completo %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field form.email %}
+                            </div>
+                            <div class="col-md-6">
+                                {% bootstrap_field form.dependencia %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% bootstrap_field form.genero %}
+                                <div class="form-check form-switch custom-switch mt-3">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                {% bootstrap_field form.direccion %}
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                            <a href="{% url 'gestionar_usuarios' %}" class="btn btn-cancel-custom btn-lg px-4 rounded-pill">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-custom-save btn-lg px-4 rounded-pill">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+    $('#id_dependencia').select2({
+        theme: "bootstrap-5",
+        placeholder: "Seleccione una dependencia...",
+        allowClear: true
+    });
+});
+</script>
+{% endblock %}

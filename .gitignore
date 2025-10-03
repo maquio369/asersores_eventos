@@ -1,7 +1,4 @@
 # Archivos de entorno de Python
-venv/
-env/
-.venv/
 
 # Archivos compilados de Python
 __pycache__/
@@ -23,10 +20,7 @@ static_root/
 
 # Archivos de secretos y configuración local
 # python-decouple usa .env por defecto
-.env
-*.env
-*.env.local
-local_settings.py
+
 
 # Logs
 *.log

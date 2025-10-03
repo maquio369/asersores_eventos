@@ -57,6 +57,26 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border-radius: 15px;
             overflow: hidden; /* Para que los bordes redondeados afecten a las columnas internas */
+            margin: 15px; /* Margen en móvil */
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 767.98px) {
+            .login-card {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            .form-section {
+                padding: 30px 20px !important;
+            }
+            .carousel {
+                height: 200px !important; /* Altura reducida en móvil */
+            }
+            #topBar {
+                font-size: medium;
+                padding: 0 10px;
+                text-align: center;
+            }
         }
         .image-section {
             padding: 0;
@@ -108,7 +128,7 @@
     <div class="container-fluid login-container">
         <div class="card login-card">
             <div class="row g-0">
-                <div class="col-md-6 image-section">
+                <div class="col-md-6 image-section d-none d-md-block">
                     <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
@@ -131,7 +151,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-md-6 form-section">
+                <div class="col-md-6 col-12 form-section">
                     <img src="{% static 'img/Logo1.png' %}" alt="Logo" class="logo">
                     <h2 class="text-center mb-4">Eventos del Estado de Chiapas</h2>
                     <form method="post">

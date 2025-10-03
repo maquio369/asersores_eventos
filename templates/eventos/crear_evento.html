@@ -44,16 +44,6 @@
         color: white;
     }
 
-    .btn-custom-cancel {
-        background-color: #646362;
-        border-color: #646362;
-        color: white;
-    }
-    .btn-custom-cancel:hover {
-        background-color: #504f4e;
-        border-color: #504f4e;
-        color: white;
-    }
 </style>
 {% endblock %}
 
@@ -169,7 +159,7 @@
 
                     {# Botones de acción #}
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
-                        <a href="{% if evento %}{% url 'detalle_evento' evento.id %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn btn-custom-cancel btn-lg px-4 rounded-pill">
+                        <a href="{% if evento %}{% url 'detalle_evento' evento.id %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn btn-cancel-custom btn-lg px-4 rounded-pill">
                             <i class="fas fa-times me-2"></i>Cancelar
                         </a>
                         <button type="submit" class="btn btn-custom-save btn-lg px-4 rounded-pill">

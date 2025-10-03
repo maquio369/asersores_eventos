@@ -93,16 +93,6 @@
         border-color: #bd2130;
         color: white;
     }
-    .btn-custom-back {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: white;
-    }
-    .btn-custom-back:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-        color: white;
-    }
 </style>
 {% endblock %}
 
@@ -211,7 +201,7 @@
                 </div>
                 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
-                    <a href="javascript:history.back()" class="btn btn-custom-back btn-lg px-4 rounded-pill">
+                    <a href="javascript:history.back()" class="btn btn-cancel-custom btn-lg px-4 rounded-pill">
                         <i class="fas fa-arrow-left me-2"></i>Volver
                     </a>
                     {% if puede_editar %}
@@ -228,8 +218,9 @@
         <div class="card mt-4 info-card-oval">
             <div class="card-body p-4">
                 <h6 class="card-title text-center mb-3"><i class="fas fa-clipboard-check me-2"></i>Estado del Evento</h6>
-                <div class="text-center">
+                <div class="d-flex justify-content-between align-items-center">
                     <span class="badge rounded-pill estado-{{ evento.estado }} p-2 px-3">{{ evento.get_estado_display }}</span>
+                    <span class="fw-bold text-muted">Folio: #{{ evento.id }}</span>
                 </div>
             </div>
         </div>

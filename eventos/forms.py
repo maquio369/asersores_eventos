@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
 from .models import Evento, CustomUser, Municipio, Dependencia
 import os
@@ -255,4 +256,136 @@ class FiltroEventosForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select form-select-sm'})
     )
 
+    folio = forms.IntegerField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-sm',
+            'placeholder': 'Buscar por folio...',
+            'type': 'search'
+        })
+    )
 
+
+class PerfilUsuarioForm(forms.ModelForm):
+    """Formulario para que los usuarios editen su perfil."""
+    class Meta:
+        model = CustomUser
+        fields = ['nombre_completo', 'email', 'direccion']
+
+        widgets = {
+            'nombre_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+        labels = {
+            'nombre_completo': 'Nombre Completo',
+            'email': 'Correo Electrónico',
+            'direccion': 'Dirección',
+        }
+
+    def clean_email(self):
+        """Evita que se registre un email que ya está en uso por otro usuario."""
+        email = self.cleaned_data.get('email')
+        # Si el email ha cambiado y ya existe en otro usuario (excluyendo al propio usuario)
+        if self.instance and email and CustomUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise ValidationError("Este correo electrónico ya está en uso por otro usuario.")
+        return email
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """
+    Formulario personalizado para cambiar la contraseña, con estilos de Bootstrap.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget = forms.PasswordInput(
+            attrs={'class': 'form-control', 'placeholder': 'Contraseña actual'}
+        )
+        self.fields['new_password1'].widget = forms.PasswordInput(
+            attrs={'class': 'form-control', 'placeholder': 'Nueva contraseña'}
+        )
+        self.fields['new_password2'].widget = forms.PasswordInput(
+            attrs={'class': 'form-control', 'placeholder': 'Confirmar nueva contraseña'}
+        )
+        self.fields['old_password'].label = "Contraseña Actual"
+        self.fields['new_password1'].label = "Nueva Contraseña"
+        self.fields['new_password2'].label = "Confirmación de Nueva Contraseña"
+
+
+class AdminCrearUsuarioForm(forms.ModelForm):
+    """Formulario para que un admin cree un nuevo usuario de captura."""
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label="Contraseña"
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label="Confirmar Contraseña"
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'nombre_completo', 'email', 'dependencia', 'direccion', 'genero']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'nombre_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'dependencia': forms.Select(attrs={'class': 'form-select'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'genero': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def clean_password2(self):
+        """Valida que las contraseñas coincidan."""
+        password = self.cleaned_data.get("password")
+        password2 = self.cleaned_data.get("password2")
+        if password and password2 and password != password2:
+            raise ValidationError("Las contraseñas no coinciden.")
+        return password2
+
+    def clean_username(self):
+        """Valida que el nombre de usuario no esté ya en uso."""
+        username = self.cleaned_data.get('username')
+        if CustomUser.objects.filter(username=username).exists():
+            raise ValidationError("Este nombre de usuario ya está en uso.")
+        return username
+
+    def save(self, commit=True):
+        """Guarda el nuevo usuario con el tipo 'captura' y la contraseña hasheada."""
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        user.tipo_usuario = 'captura'  # Asignar rol por defecto
+        if commit:
+            user.save()
+        return user
+
+class AdminEditarUsuarioForm(forms.ModelForm):
+    """Formulario para que un admin edite un usuario de captura existente."""
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'nombre_completo', 'email', 'dependencia', 'direccion', 'genero', 'is_active']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'nombre_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'dependencia': forms.Select(attrs={'class': 'form-select'}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'genero': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean_username(self):
+        """Valida que el nombre de usuario no esté ya en uso por OTRO usuario."""
+        username = self.cleaned_data.get('username')
+        # self.instance.pk es el ID del usuario que se está editando
+        if CustomUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+            raise ValidationError("Este nombre de usuario ya está en uso por otro usuario.")
+        return username
+
+    def clean_email(self):
+        """Valida que el email no esté en uso por OTRO usuario."""
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise ValidationError("Este correo electrónico ya está en uso por otro usuario.")
+        return email

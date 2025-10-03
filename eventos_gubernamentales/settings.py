@@ -12,7 +12,9 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.16.35.75']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.16.35.75', 'booted-uneloped-missy.ngrok-free.dev']
+
+CSRF_TRUSTED_ORIGINS = ['https://booted-uneloped-missy.ngrok-free.dev']
 
 # Application definition
 INSTALLED_APPS = [

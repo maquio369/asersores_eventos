@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
 from django.http import HttpResponse, Http404, JsonResponse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from .models import Evento, Municipio
-from .forms import EventoForm, FiltroEventosForm
+from .models import Evento, Municipio, CustomUser, Dependencia
+from .forms import EventoForm, FiltroEventosForm, PerfilUsuarioForm, CustomPasswordChangeForm, AdminCrearUsuarioForm, AdminEditarUsuarioForm
 from .decorators import captura_or_admin_required, admin_required, active_user_required
 from django.core.management import call_command
 from io import StringIO
@@ -18,6 +19,9 @@ import os
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
 
 def enviar_notificacion_evento(evento, subject, tipo_accion='creado'):
     """
@@ -47,6 +51,31 @@ def enviar_notificacion_evento(evento, subject, tipo_accion='creado'):
         recipient_list=destinatarios,
         html_message=html_message,
         fail_silently=False, # Poner en True en producción
+    )
+
+def enviar_notificacion_nuevo_usuario(user, password_plano):
+    """
+    Función auxiliar para enviar un correo de bienvenida a un nuevo usuario.
+    """
+    if not user.email:
+        return
+
+    subject = "¡Bienvenido al Sistema de Gestión de Eventos!"
+    contexto_email = {
+        'user': user,
+        'password': password_plano,
+        'login_url': 'http://127.0.0.1:8000/login/', # Idealmente, obtener esto de forma dinámica
+    }
+    
+    html_message = render_to_string('emails/notificacion_nuevo_usuario.html', contexto_email)
+    
+    send_mail(
+        subject=subject,
+        message='',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        html_message=html_message,
+        fail_silently=False,
     )
 
 @login_required
@@ -92,17 +121,18 @@ def dashboard(request):
 
     # Date period filter
     periodo = request.GET.get('periodo', 'dia')
-    if periodo == 'dia':
-        start_date = hoy
-        end_date = hoy
-    elif periodo == 'semana':
-        start_date = hoy - timedelta(days=hoy.weekday())
-        end_date = start_date + timedelta(days=6)
-    else: # mes
-        start_date = hoy.replace(day=1)
-        end_date = end_of_month
-    
-    eventos_filtrados = eventos_filtrados.filter(fecha_hora_inicio__date__range=[start_date, end_date])
+    if periodo != 'todo':
+        if periodo == 'dia':
+            start_date = hoy
+            end_date = hoy
+        elif periodo == 'semana':
+            start_date = hoy - timedelta(days=hoy.weekday())
+            end_date = start_date + timedelta(days=6)
+        else: # mes
+            start_date = hoy.replace(day=1)
+            end_date = end_of_month
+        
+        eventos_filtrados = eventos_filtrados.filter(fecha_hora_inicio__date__range=[start_date, end_date])
 
     # Apply filters from form
     form_filtro = FiltroEventosForm(request.GET)
@@ -114,6 +144,10 @@ def dashboard(request):
         dependencia = form_filtro.cleaned_data.get('dependencia')
         if dependencia:
             eventos_filtrados = eventos_filtrados.filter(usuario_creador__dependencia=dependencia)
+
+        folio = form_filtro.cleaned_data.get('folio')
+        if folio:
+            eventos_filtrados = eventos_filtrados.filter(id=folio)
 
     eventos_filtrados = eventos_filtrados.order_by('fecha_hora_inicio')
 
@@ -129,6 +163,106 @@ def dashboard(request):
     }
     
     return render(request, 'dashboard.html', context)
+
+@login_required
+@active_user_required
+def exportar_eventos_excel(request):
+    """Exportar eventos filtrados a Excel"""
+    
+    # Aplicar la misma lógica de filtros que en dashboard
+    hoy = timezone.localdate()
+    start_of_month = hoy.replace(day=1)
+    next_month = hoy.replace(day=28) + timedelta(days=4)
+    end_of_month = next_month - timedelta(days=next_month.day)
+
+    if request.user.is_admin_user():
+        eventos_filtrados = Evento.objects.all()
+    else:
+        eventos_filtrados = Evento.objects.filter(usuario_creador=request.user)
+
+    # Filtro de período
+    periodo = request.GET.get('periodo', 'dia')
+    if periodo != 'todo':
+        if periodo == 'dia':
+            start_date = hoy
+            end_date = hoy
+        elif periodo == 'semana':
+            start_date = hoy - timedelta(days=hoy.weekday())
+            end_date = start_date + timedelta(days=6)
+        else: # mes
+            start_date = hoy.replace(day=1)
+            end_date = end_of_month
+        
+        eventos_filtrados = eventos_filtrados.filter(fecha_hora_inicio__date__range=[start_date, end_date])
+
+    # Aplicar filtros del formulario
+    form_filtro = FiltroEventosForm(request.GET)
+    if form_filtro.is_valid():
+        municipio = form_filtro.cleaned_data.get('municipio')
+        if municipio:
+            eventos_filtrados = eventos_filtrados.filter(municipio=municipio)
+
+        dependencia = form_filtro.cleaned_data.get('dependencia')
+        if dependencia:
+            eventos_filtrados = eventos_filtrados.filter(usuario_creador__dependencia=dependencia)
+
+        folio = form_filtro.cleaned_data.get('folio')
+        if folio:
+            eventos_filtrados = eventos_filtrados.filter(id=folio)
+
+    eventos_filtrados = eventos_filtrados.order_by('fecha_hora_inicio')
+
+    # Crear archivo Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Eventos"
+
+    # Encabezados
+    headers = ['Folio', 'Nombre del Evento', 'Fecha Inicio', 'Fecha Fin', 'Lugar', 'Municipio', 'Dependencia', 'Estado']
+    
+    # Estilo para encabezados
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="006554", end_color="006554", fill_type="solid")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+
+    # Datos
+    for row_num, evento in enumerate(eventos_filtrados, 2):
+        ws.cell(row=row_num, column=1, value=evento.id)
+        ws.cell(row=row_num, column=2, value=evento.nombre_evento)
+        ws.cell(row=row_num, column=3, value=evento.fecha_hora_inicio.strftime('%d/%m/%Y %H:%M'))
+        ws.cell(row=row_num, column=4, value=evento.fecha_hora_fin.strftime('%d/%m/%Y %H:%M') if evento.fecha_hora_fin else '')
+        ws.cell(row=row_num, column=5, value=evento.lugar_evento or '')
+        ws.cell(row=row_num, column=6, value=evento.municipio.nom_mun if evento.municipio else '')
+        ws.cell(row=row_num, column=7, value=evento.dependencia or '')
+        ws.cell(row=row_num, column=8, value=evento.get_estado_display())
+
+    # Ajustar ancho de columnas
+    for column in ws.columns:
+        max_length = 0
+        column_letter = get_column_letter(column[0].column)
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    # Preparar respuesta
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="eventos_{periodo}_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+    
+    wb.save(response)
+    return response
 
 @login_required
 @active_user_required
@@ -483,12 +617,133 @@ def descargar_pdf(request, evento_id):
 
 @login_required
 def perfil_usuario(request):
-    return HttpResponse("Perfil de usuario")
+    """
+    Vista para que el usuario vea y edite su perfil.
+    """
+    user = request.user
+    profile_form = PerfilUsuarioForm(instance=user)
+    password_form = CustomPasswordChangeForm(user)
+
+    if request.method == 'POST':
+        # Distinguir qué formulario se envió
+        if 'update_profile' in request.POST:
+            profile_form = PerfilUsuarioForm(request.POST, instance=user)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, '✅ Tu perfil ha sido actualizado correctamente.')
+                return redirect('perfil_usuario')
+            else:
+                messages.error(request, '❌ Por favor, corrige los errores al actualizar tu perfil.')
+
+        elif 'change_password' in request.POST:
+            password_form = CustomPasswordChangeForm(user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                # Actualizar la sesión del usuario para que no se cierre
+                update_session_auth_hash(request, user)
+                messages.success(request, '🔑 Tu contraseña ha sido cambiada exitosamente.')
+                return redirect('perfil_usuario')
+            else:
+                messages.error(request, '❌ Por favor, corrige los errores al cambiar tu contraseña.')
+
+    context = {
+        'profile_form': profile_form,
+        'password_form': password_form,
+        'titulo': 'Mi Perfil',
+        'user': user
+    }
+    return render(request, 'perfil_usuario.html', context)
+
+
+@login_required
+@admin_required
+def crear_usuario(request):
+    """
+    Vista para que un administrador cree un nuevo usuario de captura.
+    """
+    if request.method == 'POST':
+        form = AdminCrearUsuarioForm(request.POST)
+        if form.is_valid():
+            password_plano = form.cleaned_data.get('password')
+            user = form.save()
+            
+            try:
+                enviar_notificacion_nuevo_usuario(user, password_plano)
+                messages.success(request, f'✅ Usuario "{user.username}" creado exitosamente. Se ha enviado un correo de bienvenida.')
+            except Exception as e:
+                messages.warning(request, f'✅ Usuario "{user.username}" creado, pero hubo un error al enviar el correo de bienvenida: {e}')
+
+            # Redirigir a la lista de usuarios para ver el resultado.
+            return redirect('gestionar_usuarios')
+
+        else:
+            messages.error(request, '❌ Por favor, corrige los errores en el formulario.')
+    else:
+        form = AdminCrearUsuarioForm()
+
+    context = {
+        'form': form,
+        'titulo': 'Crear Nuevo Usuario de Captura'
+    }
+    return render(request, 'usuarios/crear_usuario.html', context)
+
+@login_required
+@admin_required
+def editar_usuario(request, user_id):
+    """
+    Vista para que un administrador edite un usuario existente.
+    """
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        form = AdminEditarUsuarioForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'✅ Usuario "{user.username}" actualizado exitosamente.')
+            return redirect('gestionar_usuarios')
+        else:
+            messages.error(request, '❌ Por favor, corrige los errores en el formulario.')
+    else:
+        form = AdminEditarUsuarioForm(instance=user)
+
+    context = {
+        'form': form,
+        'titulo': f'Editar Usuario: {user.username}',
+        'usuario_editado': user
+    }
+    return render(request, 'usuarios/editar_usuario.html', context)
 
 @login_required
 @admin_required
 def gestionar_usuarios(request):
-    return HttpResponse("Gestionar usuarios")
+    """
+    Vista para que un administrador vea, filtre y gestione usuarios.
+    """
+    # Excluir al superusuario de la lista para evitar que se desactive a sí mismo
+    usuarios_list = CustomUser.objects.filter(is_superuser=False).order_by('username')
+    dependencias_list = Dependencia.objects.all()
+
+    # Lógica de búsqueda y filtro
+    query = request.GET.get('q', '')
+    dependencia_id = request.GET.get('dependencia', '')
+
+    if query:
+        usuarios_list = usuarios_list.filter(
+            Q(username__icontains=query) |
+            Q(nombre_completo__icontains=query) |
+            Q(email__icontains=query)
+        )
+
+    if dependencia_id:
+        usuarios_list = usuarios_list.filter(dependencia_id=dependencia_id)
+
+    context = {
+        'usuarios': usuarios_list,
+        'titulo': 'Gestionar Usuarios',
+        'query': query,
+        'dependencias_list': dependencias_list,
+        'dependencia_id': dependencia_id,
+    }
+    return render(request, 'usuarios/gestionar_usuarios.html', context)
 
 @login_required
 @admin_required

@@ -51,6 +51,7 @@
     --bs-table-bg: #2b3035;
     --bs-table-border-color: #495057;
     --bs-table-striped-bg: #343a40;
+    --bs-table-striped-color: #dee2e6;
     --bs-table-hover-bg: #3f454a;
     color: #dee2e6;
 }
@@ -271,3 +272,282 @@
     color: #adb5bd !important;
 }
 
+/* Fix Select2 text color in dark mode */
+[data-bs-theme="dark"] .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .select2-search--dropdown .select2-search__field {
+    background-color: #454d55;
+    color: #fff;
+    border-color: #6c757d;
+}
+
+/* Custom styles for management table */
+.table-gestion {
+    border: 1px solid #dee2e6;
+}
+
+.table-gestion thead th {
+    background-color: #f8f9fa;
+    border-bottom-width: 2px;
+    vertical-align: middle;
+}
+
+.table-gestion th,
+.table-gestion td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.table-gestion tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table-gestion .badge {
+    font-size: 0.8rem;
+    padding: 0.4em 0.7em;
+}
+
+.table-gestion td:nth-child(5), /* Estado */
+.table-gestion th:nth-child(5),
+.table-gestion td:nth-child(6), /* Acciones */
+.table-gestion th:nth-child(6) {
+    text-align: center;
+}
+
+/* Dark mode styles for management table */
+[data-bs-theme="dark"] .table-gestion {
+    border-color: #495057;
+}
+
+[data-bs-theme="dark"] .table-gestion thead th {
+    background-color: #343a40;
+}
+
+[data-bs-theme="dark"] .table-gestion tbody tr:hover {
+    background-color: #3f454a;
+    --bs-table-hover-color: var(--bs-body-color);
+}
+
+/* Alertas Mejoradas */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1060;
+    max-width: 400px;
+}
+
+.alert-modern {
+    position: relative;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    margin-bottom: 15px;
+    padding: 0;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    animation: slideInRight 0.4s ease-out;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+}
+
+.alert-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.alert-message {
+    flex: 1;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.alert-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    width: 100%;
+}
+
+/* Colores específicos para cada tipo */
+.alert-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.alert-error, .alert-danger {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    color: white;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: #212529;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #17a2b8, #007bff);
+    color: white;
+}
+
+/* Botón de cerrar personalizado */
+.alert-modern .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 8px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.alert-modern .btn-close:hover {
+    opacity: 1;
+}
+
+/* Animaciones */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes alertProgress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Modo oscuro para alertas */
+[data-bs-theme="dark"] .alert-modern {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .alert-success {
+    background: linear-gradient(135deg, #198754, #20c997);
+}
+
+[data-bs-theme="dark"] .alert-error,
+[data-bs-theme="dark"] .alert-danger {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+[data-bs-theme="dark"] .alert-warning {
+    background: linear-gradient(135deg, #fd7e14, #ffc107);
+    color: white;
+}
+
+[data-bs-theme="dark"] .alert-info {
+    background: linear-gradient(135deg, #0dcaf0, #17a2b8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .alert-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .alert-modern {
+        margin-bottom: 10px;
+    }
+    
+    .alert-content {
+        padding: 12px 16px;
+    }
+}
+
+/* Custom Cancel Button */
+.btn-cancel-custom {
+    background-color: rgba(200, 0, 102, 1);
+    border-color: rgba(200, 0, 102, 1);
+    color: white;
+}
+
+.btn-cancel-custom:hover {
+    background-color: #a00052;
+    border-color: #a00052;
+    color: white;
+}
+
+.btn-custom-create {
+    background-color: #009785;
+    border-color: #009785;
+    color: white;
+}
+
+.btn-custom-create:hover {
+    background-color: #007a6b;
+    border-color: #007a6b;
+    color: white;
+}
+
+/* Styles for pill-shaped nav links */
+.nav-link-pill {
+    background-color: rgba(0, 101, 84);
+    color: white !important;
+    border-radius: 50rem;
+    padding: 0.5rem 1rem;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link-pill:hover {
+    background-color: rgb(0, 80, 67);
+    color: white !important;
+}
+
+.nav-link-pill.active {
+    background-color: rgb(0, 60, 50);
+}
+
+/* Custom styles for Select2 clear button */
+.select2-selection__clear {
+    font-size: 1.2rem !important; /* Make it bigger */
+    color: #6c757d; /* A neutral gray */
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    right: 0.5rem; /* Adjust position */
+}
+
+.select2-selection__clear:hover {
+    opacity: 1;
+    color: #dc3545; /* Red on hover */
+}
+
+[data-bs-theme="dark"] .select2-selection__clear {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .select2-selection__clear:hover {
+    color: #ff8a8a; /* Lighter red for dark mode */
+}

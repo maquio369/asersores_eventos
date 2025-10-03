@@ -117,6 +117,19 @@
     .filter-bar-oval .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
         color: #333;
     }
+
+    /* Folio badge styles */
+    .folio-badge {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        color: #333 !important;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    [data-bs-theme="dark"] .folio-badge {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        color: #fff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 </style>
 {% endblock %}
 
@@ -125,18 +138,11 @@
 {% block content %}
 <div class="row align-items-center mb-4">
     <div class="col-sm-3 text-center text-sm-start">
-        <img src="{% static 'img/Logo1.png' %}" alt="Logo" style="height: 60px;">
     </div>
     <div class="col-sm-6 text-center">
-        <h1 class="h3 mb-0 text-gray-800">Eventos del Estado de Chiapas</h1>
     </div>
     <div class="col-sm-3 text-center text-sm-end">
-        <a href="" class="btn shadow-sm rounded-pill" style="background-color: #009784; border-color: #009784; color: white;">
-            <i class="fas fa-sync-alt fa-sm"></i>
-        </a>
-        <a href="{% url 'crear_evento' %}" class="btn shadow-sm rounded-pill ms-2" style="background-color: #009785; border-color: #009785; color: white;">
-            <i class="fas fa-plus fa-sm me-1"></i> Nuevo Evento
-        </a>
+
     </div>
 </div>
 
@@ -211,38 +217,52 @@
     </div>
 </div>
 
-<!-- Barra de Filtros Ovalada -->
+<!-- Barra de Filtros Responsiva -->
 <div class="filter-bar-oval mb-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
         
-        <h4 class="h5 mb-0">Filtrar por:</h4>
-
-        <div class="d-flex align-items-center flex-wrap gap-3">
-            
-            <form method="get" action="" id="filter-form" class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
+        <!-- Título y Filtros de campos -->
+        <div class="flex-grow-1">
+            <h5 class="mb-2">Filtrar por:</h5>
+            <form method="get" action="" id="filter-form">
                 <input type="hidden" name="periodo" value="{{ periodo }}">
-                <div class="flex-grow-1">
-                    {{ form_filtro.municipio }}
+                <div class="d-flex flex-column flex-md-row gap-2">
+                    <div style="min-width: 120px;">
+                        {{ form_filtro.folio }}
+                    </div>
+                    <div style="min-width: 180px;">
+                        {{ form_filtro.municipio }}
+                    </div>
+                    {% if user.is_admin_user %}
+                    <div style="min-width: 180px;">
+                        {{ form_filtro.dependencia }}
+                    </div>
+                    {% endif %}
                 </div>
-                {% if user.is_admin_user %}
-                <div class="flex-grow-1">
-                    {{ form_filtro.dependencia }}
-                </div>
-                {% endif %}
             </form>
-
-            <ul class="nav nav-pills">
-                <li class="nav-item">
-                    <a class="nav-link nav-link-sm periodo-link {% if periodo == 'dia' %}active{% endif %}" href="?periodo=dia">Día</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-link-sm periodo-link {% if periodo == 'semana' %}active{% endif %}" href="?periodo=semana">Semana</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-link-sm periodo-link {% if periodo == 'mes' %}active{% endif %}" href="?periodo=mes">Mes</a>
-                </li>
-            </ul>
         </div>
+        
+        <!-- Filtros de período y botón exportar -->
+        <ul class="nav nav-pills flex-wrap align-items-center gap-1">
+            <li class="nav-item">
+                <a class="nav-link nav-link-sm periodo-link {% if periodo == 'todo' %}active{% endif %}" href="?periodo=todo">Todo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-sm periodo-link {% if periodo == 'dia' %}active{% endif %}" href="?periodo=dia">Día</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-sm periodo-link {% if periodo == 'semana' %}active{% endif %}" href="?periodo=semana">Semana</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-sm periodo-link {% if periodo == 'mes' %}active{% endif %}" href="?periodo=mes">Mes</a>
+            </li>
+            <li class="nav-item ms-5">
+                <a href="#" id="exportar-excel" class="badge bg-success text-white px-2 py-1 text-decoration-none" style="font-size: 0.75rem;">
+                    <i class="fas fa-file-excel me-1"></i>Excel
+                </a>
+            </li>
+        </ul>
+        
     </div>
 </div>
     <!-- Contenedor para las tarjetas de eventos verticales -->
@@ -250,8 +270,9 @@
         {% for evento in eventos_filtrados %}
         <div class="col-lg-4 col-md-6 mb-4">
             <a href="{% url 'detalle_evento' evento.id %}" class="card event-card text-decoration-none text-dark">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 fw-bold">{{ evento.nombre_evento }}</h6>
+                    <small class="badge folio-badge">Folio: {{ evento.id }}</small>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled mb-0">
@@ -323,6 +344,25 @@ $(document).ready(function() {
         $('#filter-form').submit();
     });
 
+    // Búsqueda de folio con debounce (igual que gestionar usuarios)
+    let debounceTimeout;
+    $('#id_folio').on('keyup', function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(function() {
+            $('#filter-form').submit();
+        }, 300);
+    });
+
+    // Auto-focus en el campo de folio si hay una consulta (igual que gestionar usuarios)
+    const folioInput = $('#id_folio');
+    const folioQuery = folioInput.val();
+
+    if (folioQuery) {
+        folioInput.focus();
+        const len = folioQuery.length;
+        folioInput[0].setSelectionRange(len, len);
+    }
+
     // Lógica para que los filtros de período conserven los otros filtros
     $('.periodo-link').on('click', function(e) {
         e.preventDefault();
@@ -330,6 +370,7 @@ $(document).ready(function() {
         var url = $(this).attr('href');
         var municipio = $('#id_municipio').val();
         var dependencia = $('#id_dependencia').val();
+        var folio = $('#id_folio').val();
 
         var params = new URLSearchParams(url.split('?')[1]);
         
@@ -339,8 +380,21 @@ $(document).ready(function() {
         if (dependencia) {
             params.set('dependencia', dependencia);
         }
+        if (folio) {
+            params.set('folio', folio);
+        }
 
         window.location.href = '?' + params.toString();
+    });
+
+    // Exportar a Excel con filtros actuales
+    $('#exportar-excel').on('click', function(e) {
+        e.preventDefault();
+        
+        var params = new URLSearchParams(window.location.search);
+        var exportUrl = '{% url "exportar_eventos_excel" %}?' + params.toString();
+        
+        window.open(exportUrl, '_blank');
     });
 });
 </script>
