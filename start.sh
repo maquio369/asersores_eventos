@@ -1,9 +1,4 @@
 #!/bin/bash
-set -e
-
-# Verificar que las dependencias estén instaladas
-echo "Verificando dependencias..."
-python -c "import django; import bootstrap5; import openpyxl; print('Todas las dependencias OK')"
 
 # Esperar a que la base de datos esté disponible
 echo "Esperando a que la base de datos esté disponible..."
@@ -12,17 +7,14 @@ while ! nc -z $DB_HOST $DB_PORT; do
 done
 echo "Base de datos disponible!"
 
-# Configurar Django settings
-export DJANGO_SETTINGS_MODULE=eventos_gubernamentales.settings_docker
-
 # Ejecutar migraciones
 echo "Ejecutando migraciones..."
-python manage.py migrate
+python manage.py migrate --settings=eventos_gubernamentales.settings_docker
 
 # Recopilar archivos estáticos
 echo "Recopilando archivos estáticos..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --settings=eventos_gubernamentales.settings_docker
 
 # Iniciar servidor Django
 echo "Iniciando servidor..."
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:8000 --settings=eventos_gubernamentales.settings_docker

@@ -18,9 +18,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt /app/
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Verificar que django-bootstrap5 se instaló
-RUN python -c "import bootstrap5; print('django-bootstrap5 instalado correctamente')"
+RUN pip list | grep django-bootstrap5
 
 # Copiar el proyecto
 COPY . /app/
