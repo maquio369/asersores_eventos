@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load bootstrap5 %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,36 +64,57 @@
                     <div class="row g-3">
                         {# === CAMPOS DE CAPTURA === #}
                         <div class="col-12">
-                            {% bootstrap_field form.nombre_evento layout='floating' %}
+                            <div class="form-floating mb-3">
+                                {{ form.nombre_evento }}
+                                <label for="{{ form.nombre_evento.id_for_label }}">{{ form.nombre_evento.label }}</label>
+                            </div>
                         </div>
 
                         <div class="col-12">
-                            {% bootstrap_field form.observaciones layout='floating' %}
+                            <div class="form-floating mb-3">
+                                {{ form.observaciones }}
+                                <label for="{{ form.observaciones.id_for_label }}">{{ form.observaciones.label }}</label>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
-                            {% bootstrap_field form.lugar_evento layout='floating' %}
+                            <div class="form-floating mb-3">
+                                {{ form.lugar_evento }}
+                                <label for="{{ form.lugar_evento.id_for_label }}">{{ form.lugar_evento.label }}</label>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                           {% bootstrap_field form.municipio layout='floating' %}
+                            <div class="form-floating mb-3">
+                                {{ form.municipio }}
+                                <label for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}</label>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
-                            {% bootstrap_field form.fecha_hora_inicio layout='floating' %}
+                            <div class="form-floating mb-3">
+                                {{ form.fecha_hora_inicio }}
+                                <label for="{{ form.fecha_hora_inicio.id_for_label }}">{{ form.fecha_hora_inicio.label }}</label>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            {% bootstrap_field form.fecha_hora_fin layout='floating' %}
+                            <div class="form-floating mb-3">
+                                {{ form.fecha_hora_fin }}
+                                <label for="{{ form.fecha_hora_fin.id_for_label }}">{{ form.fecha_hora_fin.label }}</label>
+                            </div>
                         </div>
                         
                         <div class="col-12">
-                            {% bootstrap_field form.archivo_pdf layout='floating' %}
-                            {% if evento.archivo_pdf %}
-                                <div class="mt-2">
-                                    <small class="text-muted">Archivo actual: 
-                                        <a href="{{ evento.archivo_pdf.url }}" target="_blank">{{ evento.archivo_pdf.name|truncatechars:30 }}</a>
-                                    </small>
-                                </div>
-                            {% endif %}
+                            <div class="mb-3">
+                                <label for="{{ form.archivo_pdf.id_for_label }}" class="form-label">{{ form.archivo_pdf.label }}</label>
+                                {{ form.archivo_pdf }}
+                                {% if evento.archivo_pdf %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Archivo actual: 
+                                            <a href="{{ evento.archivo_pdf.url }}" target="_blank">{{ evento.archivo_pdf.name|truncatechars:30 }}</a>
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
                         {# === SECCIÓN EXCLUSIVA PARA ADMINISTRADORES === #}
@@ -108,7 +128,10 @@
                                 <div class="row g-3">
                                     {% if form.estado %}
                                     <div class="col-md-6">
-                                        {% bootstrap_field form.estado layout='floating' %}
+                                        <div class="form-floating mb-3">
+                                            {{ form.estado }}
+                                            <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+                                        </div>
                                     </div>
                                     {% endif %}
 
@@ -138,18 +161,24 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        {% bootstrap_field form.archivo_respuesta_admin layout='floating' %}
-                                        {% if evento.archivo_respuesta_admin %}
-                                            <div class="mt-2">
-                                                <small class="text-muted">Archivo de respuesta actual: 
-                                                    <a href="{{ evento.archivo_respuesta_admin.url }}" target="_blank">{{ evento.archivo_respuesta_admin.name|truncatechars:30 }}</a>
-                                                </small>
-                                            </div>
-                                        {% endif %}
+                                        <div class="mb-3">
+                                            <label for="{{ form.archivo_respuesta_admin.id_for_label }}" class="form-label">{{ form.archivo_respuesta_admin.label }}</label>
+                                            {{ form.archivo_respuesta_admin }}
+                                            {% if evento.archivo_respuesta_admin %}
+                                                <div class="mt-2">
+                                                    <small class="text-muted">Archivo de respuesta actual: 
+                                                        <a href="{{ evento.archivo_respuesta_admin.url }}" target="_blank">{{ evento.archivo_respuesta_admin.name|truncatechars:30 }}</a>
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                     </div>
 
                                     <div class="col-12">
-                                        {% bootstrap_field form.anotaciones layout='floating' %}
+                                        <div class="form-floating mb-3">
+                                            {{ form.anotaciones }}
+                                            <label for="{{ form.anotaciones.id_for_label }}">{{ form.anotaciones.label }}</label>
+                                        </div>
                                     </div>
                                 </div>
                             </fieldset>
