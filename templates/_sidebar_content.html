@@ -55,11 +55,13 @@
             <i class="fas fa-user me-1"></i><span class="d-none d-sm-inline">{{ user.nombre_completo }}</span><span class="d-sm-none">Usuario</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            {% comment %}
             {% if user.is_admin_user %}
             <li><a class="dropdown-item" href="{% url 'gestionar_usuarios' %}"><i class="fas fa-users-cog me-2"></i>Gestionar Usuarios</a></li>
             <li><a class="dropdown-item" href="{% url 'crear_usuario' %}"><i class="fas fa-user-plus me-2"></i>Crear Usuario</a></li>
             <li><hr class="dropdown-divider"></li>
             {% endif %}
+            {% endcomment %}
             <li><a class="dropdown-item" href="{% url 'perfil_usuario' %}"><i class="fas fa-user-cog me-2"></i>Mi Perfil</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>

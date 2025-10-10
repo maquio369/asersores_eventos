@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3020:8000"
+    environment:
+      - DEBUG=False
+      - DB_NAME=eventos
+      - DB_USER=maquio
+      - DB_PASSWORD=maquio92
+      - DB_HOST=172.16.35.75
+      - DB_PORT=32768
+      - SECRET_KEY=tu-clave-secreta-super-segura-para-produccion-cambiar-esto
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=465
+      - EMAIL_USE_TLS=False
+      - EMAIL_USE_SSL=True
+      - EMAIL_HOST_USER=gruposisgab@gmail.com
+      - EMAIL_HOST_PASSWORD=xjvfztbdccqgbebi
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - nginx
+    networks:
+      - eventos_network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "3020:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    networks:
+      - eventos_network
+
+volumes:
+  static_volume:
+  media_volume:
+
+networks:
+  eventos_network:
+    driver: bridge

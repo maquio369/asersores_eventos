@@ -227,9 +227,11 @@
             <form method="get" action="" id="filter-form">
                 <input type="hidden" name="periodo" value="{{ periodo }}">
                 <div class="d-flex flex-column flex-md-row gap-2">
+                    {% comment %}
                     <div style="min-width: 120px;">
                         {{ form_filtro.folio }}
                     </div>
+                    {% endcomment %}
                     <div style="min-width: 180px;">
                         {{ form_filtro.municipio }}
                     </div>
