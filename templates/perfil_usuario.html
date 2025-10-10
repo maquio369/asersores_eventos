@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load bootstrap5 %}
 {% load static %}
 
 {% block title %}Mi Perfil{% endblock %}
@@ -193,7 +192,18 @@
         <h5><i class="fas fa-user-edit me-2"></i>Información Personal</h5>
         <form method="post" novalidate>
             {% csrf_token %}
-            {% bootstrap_form profile_form layout='vertical' %}
+            {% for field in profile_form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" name="update_profile" class="btn btn-profile-save">
                     <i class="fas fa-save me-2"></i>Guardar Cambios
@@ -207,7 +217,18 @@
         <h5><i class="fas fa-key me-2"></i>Seguridad</h5>
         <form method="post" novalidate>
             {% csrf_token %}
-            {% bootstrap_form password_form layout='vertical' %}
+            {% for field in password_form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" name="change_password" class="btn btn-profile-save">
                     <i class="fas fa-sync-alt me-2"></i>Actualizar Contraseña

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load bootstrap5 %}
 
 {% block extra_css %}
 <style>
@@ -53,23 +52,53 @@
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6">
-                                {% bootstrap_field form.username %}
+                                <div class="mb-3">
+                                    <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                                    {{ form.username }}
+                                    {% for error in form.username.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                {% bootstrap_field form.nombre_completo %}
+                                <div class="mb-3">
+                                    <label for="{{ form.nombre_completo.id_for_label }}" class="form-label">{{ form.nombre_completo.label }}</label>
+                                    {{ form.nombre_completo }}
+                                    {% for error in form.nombre_completo.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                {% bootstrap_field form.email %}
+                                <div class="mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                    {{ form.email }}
+                                    {% for error in form.email.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                {% bootstrap_field form.dependencia %}
+                                <div class="mb-3">
+                                    <label for="{{ form.dependencia.id_for_label }}" class="form-label">{{ form.dependencia.label }}</label>
+                                    {{ form.dependencia }}
+                                    {% for error in form.dependencia.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                {% bootstrap_field form.genero %}
+                                <div class="mb-3">
+                                    <label for="{{ form.genero.id_for_label }}" class="form-label">{{ form.genero.label }}</label>
+                                    {{ form.genero }}
+                                    {% for error in form.genero.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
                                 <div class="form-check form-switch custom-switch mt-3">
                                     {{ form.is_active }}
                                     <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
@@ -78,7 +107,13 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                {% bootstrap_field form.direccion %}
+                                <div class="mb-3">
+                                    <label for="{{ form.direccion.id_for_label }}" class="form-label">{{ form.direccion.label }}</label>
+                                    {{ form.direccion }}
+                                    {% for error in form.direccion.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
