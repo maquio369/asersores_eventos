@@ -20,30 +20,8 @@ services:
       - EMAIL_HOST_USER=gruposisgab@gmail.com
       - EMAIL_HOST_PASSWORD=xjvfztbdccqgbebi
     volumes:
-      - static_volume:/app/staticfiles
       - media_volume:/app/media
-    depends_on:
-      - nginx
-    networks:
-      - eventos_network
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "3020:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-    depends_on:
-      - web
-    networks:
-      - eventos_network
+    restart: unless-stopped
 
 volumes:
-  static_volume:
   media_volume:
-
-networks:
-  eventos_network:
-    driver: bridge

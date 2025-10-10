@@ -15,10 +15,6 @@ python manage.py migrate --settings=eventos_gubernamentales.settings_docker
 echo "Recopilando archivos estáticos..."
 python manage.py collectstatic --noinput --settings=eventos_gubernamentales.settings_docker
 
-# Iniciar Gunicorn
+# Iniciar servidor Django
 echo "Iniciando servidor..."
-gunicorn eventos_gubernamentales.wsgi:application \
-    --bind 0.0.0.0:8000 \
-    --workers 3 \
-    --timeout 120 \
-    --settings=eventos_gubernamentales.settings_docker
+python manage.py runserver 0.0.0.0:8000 --settings=eventos_gubernamentales.settings_docker
