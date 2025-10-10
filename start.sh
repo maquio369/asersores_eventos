@@ -17,4 +17,4 @@ python manage.py collectstatic --noinput --settings=eventos_gubernamentales.sett
 
 # Iniciar servidor Django con gunicorn
 echo "Iniciando servidor con gunicorn..."
-gunicorn eventos_gubernamentales.wsgi_docker:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
+gunicorn eventos_gubernamentales.wsgi_docker:application --bind 0.0.0.0:8000 --workers 2 --timeout 300 --worker-class sync --max-requests 1000 --max-requests-jitter 100

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth import update_session_auth_hash
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponsePermanentRedirect
 from django.utils import timezone
 from datetime import timedelta, datetime
 from .models import Evento, Municipio, CustomUser, Dependencia
@@ -22,6 +22,13 @@ from django.conf import settings
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
+
+def redirect_to_http(request):
+    """Redireccionar peticiones HTTPS a HTTP"""
+    if request.is_secure():
+        url = request.build_absolute_uri().replace('https://', 'http://')
+        return HttpResponsePermanentRedirect(url)
+    return None
 
 def enviar_notificacion_evento(evento, subject, tipo_accion='creado'):
     """
