@@ -23,14 +23,19 @@ RUN pip list | grep django-bootstrap5
 # Copiar el proyecto
 COPY . /app/
 
-# Dar permisos al script de inicio
+# Dar permisos al script de inicio y healthcheck
 RUN chmod +x /app/start.sh
+RUN chmod +x /app/healthcheck.py
 
 # Crear directorio para archivos estáticos y media
 RUN mkdir -p /app/staticfiles /app/media
 
 # Exponer puerto
 EXPOSE 8000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python /app/healthcheck.py || exit 1
 
 # Comando por defecto
 CMD ["/app/start.sh"]

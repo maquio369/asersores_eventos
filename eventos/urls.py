@@ -27,7 +27,8 @@ urlpatterns = [
     # Administración (solo admin)
     path('gestion/usuarios/', views.gestionar_usuarios, name='gestionar_usuarios'),
     path('gestion/usuarios/crear/', views.crear_usuario, name='crear_usuario'),
-    path('gestion/usuarios/<int:user_id>/editar/', views.editar_usuario, name='editar_usuario'),    path('gestion/usuarios/<int:user_id>/toggle/', views.toggle_user_status, name='toggle_user_status'),
+    path('gestion/usuarios/<int:user_id>/editar/', views.editar_usuario, name='editar_usuario'),
+    path('gestion/usuarios/<int:user_id>/toggle/', views.toggle_user_status, name='toggle_user_status'),
     
     # API endpoints
     path('api/user-permissions/', views.check_user_permissions, name='check_user_permissions'),
