@@ -275,13 +275,13 @@ class PerfilUsuarioForm(forms.ModelForm):
         widgets = {
             'nombre_completo': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ej: Recursos Humanos, Contabilidad, etc.'}),
         }
 
         labels = {
             'nombre_completo': 'Nombre Completo',
             'email': 'Correo Electrónico',
-            'direccion': 'Dirección',
+            'direccion': 'Área',
         }
 
     def clean_email(self):

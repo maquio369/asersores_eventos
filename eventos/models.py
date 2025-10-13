@@ -57,7 +57,7 @@ class CustomUser(AbstractUser):
     # Campos adicionales requeridos
     dependencia = models.ForeignKey(Dependencia, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Dependencia')
     nombre_completo = models.CharField(max_length=100, verbose_name='Nombre Completo del Usuario')
-    direccion = models.TextField(verbose_name='Dirección')
+    direccion = models.TextField(verbose_name='Área', blank=True, null=True)
     genero = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='Género')
     tipo_usuario = models.CharField(
         max_length=10, 
