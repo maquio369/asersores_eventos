@@ -551,3 +551,17 @@
 [data-bs-theme="dark"] .select2-selection__clear:hover {
     color: #ff8a8a; /* Lighter red for dark mode */
 }
+
+.btn-dashboard {
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    background: linear-gradient(135deg, #198754 0%, #053329 100%);
+    color: white !important;
+    border-color: #053329;
+    margin: 0 5px;
+}
+
+.btn-dashboard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
